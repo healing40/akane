@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恋愛診断 - あなたの恋愛つまずきタイプは？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #e91e63;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .question-container {
+            display: none;
+            text-align: left;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e91e63, #ff9a9e);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #e91e63, #ff9a9e);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #e91e63, #ff9a9e);
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(233, 30, 99, 0.3);
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .result-type {
+            font-size: 2.5em;
+            color: #e91e63;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .result-description {
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .result-advice {
+            background: #f8f9fa;
+            border-left: 5px solid #e91e63;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .result-advice h3 {
+            color: #e91e63;
+            margin-bottom: 10px;
+        }
+
+        .restart-btn {
+            background: #6c757d;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="start-screen" id="startScreen">
+            <h1>💕 婚外恋愛診断 💕</h1>
+            <p class="subtitle">あなたの恋愛つまずきタイプを診断します</p>
+            <p style="color: #666; margin: 20px 0;">12の質問に答えて、複雑な恋愛での心理パターンを知りましょう</p>
+            <button class="start-btn" onclick="startDiagnosis()">診断スタート</button>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div class="question" id="questionText"></div>
+            <div class="options" id="optionsContainer"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">前へ</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>次へ</button>
+            </div>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <h2>診断結果</h2>
+            <div class="result-type" id="resultType"></div>
+            <div class="result-description" id="resultDescription"></div>
+            <div class="result-advice" id="resultAdvice"></div>
+            <button class="restart-btn" onclick="restart()">もう一度診断する</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "その人と過ごした後、家に帰る時の気持ちは？",
+                options: [
+                    { text: "罪悪感で胸が苦しく、「こんなことしていいのかな」と自分を責める", type: "perfect" },
+                    { text: "幸せすぎて興奮が収まらず、すぐにまた会いたくなる", type: "passion" },
+                    { text: "相手の気持ちを第一に考えて、自分の複雑な感情は後回し", type: "devotion" },
+                    { text: "この関係がどこに向かうのか、冷静に分析してしまう", type: "analysis" }
+                ]
+            },
+            {
+                question: "その人からの連絡が遅い時、あなたの反応は？",
+                options: [
+                    { text: "「迷惑をかけているのでは」と不安になり、連絡を控える", type: "perfect" },
+                    { text: "不安で眠れず、何度も携帯をチェックしてしまう", type: "passion" },
+                    { text: "相手の家庭の事情を優先して、じっと我慢して待つ", type: "devotion" },
+                    { text: "連絡パターンを分析して、相手の状況を推測する", type: "analysis" }
+                ]
+            },
+            {
+                question: "会う場所を決める時、あなたは？",
+                options: [
+                    { text: "人目につかない最適な場所を選ぼうとプレッシャーを感じる", type: "perfect" },
+                    { text: "「二人だけの時間」を重視して、直感で決める", type: "passion" },
+                    { text: "相手の都合や安全を最優先に考える", type: "devotion" },
+                    { text: "リスクを分析して、最も安全な場所を選ぶ", type: "analysis" }
+                ]
+            },
+            {
+                question: "その人の家庭の話が出た時、あなたは？",
+                options: [
+                    { text: "申し訳ない気持ちになり、自分の立場を恥じる", type: "perfect" },
+                    { text: "嫉妬や複雑な感情が湧き上がって、動揺する", type: "passion" },
+                    { text: "相手の家族を傷つけないよう、自分は我慢しようと思う", type: "devotion" },
+                    { text: "冷静に状況を整理して、現実的に考える", type: "analysis" }
+                ]
+            },
+            {
+                question: "この関係について悩んだ時、あなたは？",
+                options: [
+                    { text: "誰にも相談できず、一人で正しい答えを探そうとする", type: "perfect" },
+                    { text: "信頼できる人に心の内を打ち明けて話を聞いてもらう", type: "passion" },
+                    { text: "相手に迷惑をかけないよう、自分で解決しようとする", type: "devotion" },
+                    { text: "書籍やネットで似たような状況の情報を集める", type: "analysis" }
+                ]
+            },
+            {
+                question: "その人から「愛している」と言われた時、あなたの反応は？",
+                options: [
+                    { text: "嬉しいけれど、「こんな自分でいいのかな」と不安になる", type: "perfect" },
+                    { text: "心が揺れ動いて、涙が止まらなくなる", type: "passion" },
+                    { text: "相手の気持ちを受け止めつつ、自分の気持ちは控えめに", type: "devotion" },
+                    { text: "言葉の真意を分析して、本当の気持ちを探ろうとする", type: "analysis" }
+                ]
+            },
+            {
+                question: "記念日にプレゼントを贈る時、あなたは？",
+                options: [
+                    { text: "相手に喜んでもらえるか心配で、選択にプレッシャーを感じる", type: "perfect" },
+                    { text: "気持ちを込めて、直感で選ぶ", type: "passion" },
+                    { text: "相手の負担にならないよう、控えめなものを選ぶ", type: "devotion" },
+                    { text: "リスクを考えて、証拠に残らないものを選ぶ", type: "analysis" }
+                ]
+            },
+            {
+                question: "その人と一緒にいる時間の過ごし方は？",
+                options: [
+                    { text: "理想的なデートプランを立てて、相手に満足してもらいたい", type: "perfect" },
+                    { text: "心の赴くまま、自然体で過ごす", type: "passion" },
+                    { text: "相手の好みに合わせて、自分は我慢する", type: "devotion" },
+                    { text: "効率的で安全な時間の使い方を考える", type: "analysis" }
+                ]
+            },
+            {
+                question: "この関係の将来について考える時、あなたは？",
+                options: [
+                    { text: "理想通りにいかない現実に不安になり、自分を責める", type: "perfect" },
+                    { text: "今の気持ちを大切にして、心で考える", type: "passion" },
+                    { text: "相手の立場を思って、自分の希望は後回しにする", type: "devotion" },
+                    { text: "様々なシナリオを想定して、客観的に分析する", type: "analysis" }
+                ]
+            },
+            {
+                question: "その人が家庭のことで悩んでいる時、あなたは？",
+                options: [
+                    { text: "きちんとサポートしなければと責任を感じる", type: "perfect" },
+                    { text: "心が揺れ動いて、深く共感する", type: "passion" },
+                    { text: "自分のことは置いて、相手のケアに専念する", type: "devotion" },
+                    { text: "効果的なアドバイスを考えて、解決策を提案する", type: "analysis" }
+                ]
+            },
+            {
+                question: "SNSでその人の家族との投稿を見た時、あなたは？",
+                options: [
+                    { text: "自分の立場を恥じて、見るべきではなかったと後悔する", type: "perfect" },
+                    { text: "嫉妬や複雑な感情が湧き上がって、動揺する", type: "passion" },
+                    { text: "相手の幸せを願いつつ、自分の気持ちを抑える", type: "devotion" },
+                    { text: "投稿から相手の家庭状況を分析してしまう", type: "analysis" }
+                ]
+            },
+            {
+                question: "この関係がうまくいかない時、あなたが考えることは？",
+                options: [
+                    { text: "自分がもっと理想的だったら、この状況を変えられるのに", type: "perfect" },
+                    { text: "もっと素直に気持ちを表現すればよかった", type: "passion" },
+                    { text: "相手にもっと尽くして、支えればよかった", type: "devotion" },
+                    { text: "このような関係の成功例をもっと研究すればよかった", type: "analysis" }
+                ]
+            }
+        ];
+
+        const results = {
+            perfect: {
+                type: "完璧主義タイプ",
+                description: "あなたは罪悪感に苛まれやすい「完璧主義」タイプです。この関係に対して常に「こんなことしていいのかな」と自分を責め、相手に迷惑をかけているのではないかと不安になります。理想的でない自分を恥じて、相手にとって最高の存在になろうと過度に頑張ってしまいます。",
+                advice: "罪悪感は自然な感情ですが、それに支配される必要はありません。理想的である必要はなく、ありのままの自分を受け入れることから始めましょう。この関係も含めて、自分の選択に責任を持ちながら、自分を責めすぎないことが大切です。"
+            },
+            passion: {
+                type: "情熱タイプ",
+                description: "あなたは感情の波が激しい「情熱」タイプです。この関係に対して非常に感情的で、会えない時間が耐えられません。嫉妬や不安、喜びなどの感情が激しく、冷静な判断が難しくなりがち。相手の家族への複雑な感情も抱えやすく、感情のコントロールに苦労します。",
+                advice: "強い感情は愛の証でもありますが、時には冷静になる時間も必要です。感情が高ぶった時は深呼吸をして、現実と妄想を分けて考えましょう。この複雑な関係だからこそ、感情を整理する時間を意識的に作ることが重要です。"
+            },
+            devotion: {
+                type: "献身タイプ",
+                description: "あなたは自己犠牲的な「献身」タイプです。常に相手の立場や家族のことを優先し、自分の気持ちや希望は後回しにしがち。相手に負担をかけたくないという思いが強く、我慢することが当たり前になっています。相手の幸せを願いつつ、自分の存在価値を見失いやすいタイプです。",
+                advice: "相手を思う気持ちは美しいですが、自分も同じように大切にしてください。あなたの幸せも、この関係にとって重要な要素です。自分の気持ちを無視し続けると、いつか疲れ果ててしまいます。時には自分の気持ちを相手に伝えることも必要です。"
+            },
+            analysis: {
+                type: "分析タイプ",
+                description: "あなたは冷静で論理的な「分析」タイプです。この複雑な関係を客観視し、リスクや将来性を常に分析しています。相手の行動や状況を読み解くのが得意で、現実的な判断ができる一方、感情的なコミュニケーションが不足しがち。頭で考えすぎて、心の声を見失うことがあります。",
+                advice: "分析力は素晴らしい能力ですが、感情も同じように大切にしてください。相手の気持ちは分析するより、直接聞く方が確実です。この関係には論理だけでなく、感情的な繋がりも必要です。時には計算を忘れて、素直な気持ちを表現してみましょう。"
+            }
+        };
+
+        let currentQuestion = 0;
+        let answers = [];
+        let isQuestionActive = false;
+
+        function startDiagnosis() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+            isQuestionActive = true;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionText').textContent = `Q${currentQuestion + 1}. ${question.question}`;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option.text;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            updateProgress();
+            updateButtons();
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            answers[currentQuestion] = questions[currentQuestion].options[index].type;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.style.display = currentQuestion > 0 ? 'block' : 'none';
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? '結果を見る' : '次へ';
+            nextBtn.disabled = !answers[currentQuestion];
+        }
+
+        function showResult() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+            
+            const typeCount = {
+                perfect: 0,
+                passion: 0,
+                devotion: 0,
+                analysis: 0
+            };
+            
+            answers.forEach(answer => {
+                if (typeCount[answer] !== undefined) {
+                    typeCount[answer]++;
+                }
+            });
+            
+            const resultType = Object.keys(typeCount).reduce((a, b) => 
+                typeCount[a] > typeCount[b] ? a : b
+            );
+            
+            const result = results[resultType];
+            document.getElementById('resultType').textContent = result.type;
+            document.getElementById('resultDescription').textContent = result.description;
+            document.getElementById('resultAdvice').innerHTML = `
+                <h3>💡 改善のアドバイス</h3>
+                <p>${result.advice}</p>
+            `;
+        }
+
+        function restart() {
+            currentQuestion = 0;
+            answers = [];
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 最初は開始画面を表示
+            document.getElementById('startScreen').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
